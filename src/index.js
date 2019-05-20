@@ -364,7 +364,7 @@ jsonSchemaAvro._convertProperty = (name, value) => {
 	if(Array.isArray(value.type)){
     const indexOfNull = value.type.indexOf('null');
     if (indexOfNull > 0)
-      value.type.splice(indexOfNull, 1).unshift('null');
+      value.type.sort((x, y) => { return x == 'null' ? -1 : y == 'null' ? 1 : 0; });
     prop.type = value.type.map(type => {
         if (type === 'array')
           return {
