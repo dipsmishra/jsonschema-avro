@@ -10,7 +10,7 @@ const typeMapping = {
 	'null': 'null',
 	'boolean': 'boolean',
 	'integer': 'int',
-	'number': 'float'
+	'number': 'double'
 }
 
 const reSymbol = /^[A-Za-z_][A-Za-z0-9_]*$/;
@@ -359,10 +359,12 @@ jsonSchemaAvro._convertProperty = (name, value) => {
     prop.doc = value.description || ''
   }
 	if(value.hasOwnProperty('default')){
-		prop.default = value.default
+		prop.default = value.default;
 	}
 	if(Array.isArray(value.type)){
-    value.type.includes('null') ? (prop.default = null) : '';
+    const indexOfNull = value.type.indexOf('null');
+    if (indexOfNull > 0)
+      value.type.splice(indexOfNull, 1).unshift('null');
     prop.type = value.type.map(type => {
         if (type === 'array')
           return {
@@ -379,6 +381,7 @@ jsonSchemaAvro._convertProperty = (name, value) => {
           };
         return typeMapping[type];
       });
+    if(indexOfNull > -1) prop.default = null;
 	}
 	else{
     prop.type = typeMapping[value.type]
