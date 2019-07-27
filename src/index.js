@@ -10,13 +10,13 @@ const typeMapping = {
 	'null': 'null',
 	'boolean': 'boolean',
 	'integer': 'int',
-	'number': 'float'
+	'number': 'double'
 }
 
 const reSymbol = /^[A-Za-z_][A-Za-z0-9_]*$/;
 
 jsonSchemaAvro._collectCombinationReferences = (contents) => {
-	return !contents ? [] : [].concat.apply([], 
+	return !contents ? [] : [].concat.apply([],
 		jsonSchemaAvro._getCombinationOf(contents).map(
 			(it) => {
 				return jsonSchemaAvro._isCombinationOf(it) ?
@@ -30,7 +30,7 @@ jsonSchemaAvro._collectCombinationReferences = (contents) => {
 jsonSchemaAvro._mapPropertiesToTypes = (dereferencedAvroSchema) => {
   if(!dereferencedAvroSchema) return new Map();
   const new_obj = new Map();
-  let name 
+  let name
   let prop
   for (name in dereferencedAvroSchema) {
     if(dereferencedAvroSchema.hasOwnProperty(name)) {
@@ -38,7 +38,7 @@ jsonSchemaAvro._mapPropertiesToTypes = (dereferencedAvroSchema) => {
       prop["$ref"] = name;
       if(dereferencedAvroSchema[name].hasOwnProperty('properties')) {
         new_obj.set(dereferencedAvroSchema[name].properties, prop);
-      } else if(dereferencedAvroSchema[name].hasOwnProperty('additionalProperties') && 
+      } else if(dereferencedAvroSchema[name].hasOwnProperty('additionalProperties') &&
           dereferencedAvroSchema[name].additionalProperties) {
         new_obj.set(dereferencedAvroSchema[name].additionalProperties, prop);
       } else if(jsonSchemaAvro._isCombinationOf(dereferencedAvroSchema[name])) {
@@ -55,12 +55,12 @@ jsonSchemaAvro.convert = async (schema, recordSuffix, splitIdForMain, enumSuffix
 	if(!schema){
 		throw new Error('No schema given')
   }
-  
-  if (typeof recordSuffix === 'undefined' || recordSuffix === null) { 
+
+  if (typeof recordSuffix === 'undefined' || recordSuffix === null) {
     recordSuffix = '_record';
   }
 
-  if (typeof enumSuffix === 'undefined' || enumSuffix === null) { 
+  if (typeof enumSuffix === 'undefined' || enumSuffix === null) {
     enumSuffix = '_enum';
   }
 
@@ -95,7 +95,7 @@ jsonSchemaAvro._mainRecord = (jsonSchema) => {
   }
   const ns = jsonSchemaAvro._splitIdForMain ? schemaIdParts.join('.') : schemaId;
   const mainRecordName = jsonSchemaAvro._splitIdForMain ? schemaName : 'main';
-	return jsonSchemaAvro._isOneOf(jsonSchema) || jsonSchemaAvro._isAnyOf(jsonSchema) ? 
+	return jsonSchemaAvro._isOneOf(jsonSchema) || jsonSchemaAvro._isAnyOf(jsonSchema) ?
 		{
 			namespace: ns,
 			...jsonSchemaAvro._convertCombinationOfProperty(mainRecordName, jsonSchema)
@@ -129,8 +129,8 @@ jsonSchemaAvro._hasEnum = (schema) => {
 
 jsonSchemaAvro._isCombinationOf = (schema) => {
 	// common handling for 'union' in avro
-	return schema && (schema.hasOwnProperty('oneOf') || 
-			schema.hasOwnProperty('allOf') || 
+	return schema && (schema.hasOwnProperty('oneOf') ||
+			schema.hasOwnProperty('allOf') ||
 			schema.hasOwnProperty('anyOf'))
 }
 
@@ -148,12 +148,12 @@ jsonSchemaAvro._isAnyOf = (schema) => {
 
 jsonSchemaAvro._getCombinationOf = (schema) => {
 	// common handling for 'union' in avro
-	return schema && schema.hasOwnProperty('anyOf') ? 
+	return schema && schema.hasOwnProperty('anyOf') ?
 				schema.anyOf :
 				(schema && schema.hasOwnProperty('oneOf') ?
 					schema.oneOf :
 					(schema && schema.hasOwnProperty('allOf') ?
-						schema.allOf : 
+						schema.allOf :
 						// wrap to simplify recursion in edge cases
 						(schema ? [ schema ] : schema)
 					)
@@ -179,7 +179,7 @@ jsonSchemaAvro._convertProperties = (schema) => {
 }
 
 jsonSchemaAvro._collectCombinationProperties = (contents) => {
-	return !contents ? [] : [].concat.apply([], 
+	return !contents ? [] : [].concat.apply([],
 		jsonSchemaAvro._getCombinationOf(contents).map(
 			(it) => {
 				return jsonSchemaAvro._isCombinationOf(it) ?
@@ -233,7 +233,7 @@ jsonSchemaAvro._convertCombinationOfProperty = (name, contents) => {
           let dereferencedType = jsonSchemaAvro._getDereferencedType(it);
           jsonSchemaAvro._globalTypesCache.set(it['$ref'], dereferencedType);
           let complexProperty = jsonSchemaAvro._hasEnum(it) ?
-          jsonSchemaAvro._convertEnumProperty(dereferencedType ? dereferencedType.type : recordName, it, 
+          jsonSchemaAvro._convertEnumProperty(dereferencedType ? dereferencedType.type : recordName, it,
               dereferencedType ? dereferencedType.doc : it.description || ''):
           {
             type: 'record',
@@ -296,7 +296,7 @@ jsonSchemaAvro._getItems = (name, contents) => {
           map.doc = dereferencedType ? dereferencedType.doc : (contents.items.description || '')
         }
         const mappedType = typeMapping[contents.items.additionalProperties.type];
-        map.values = mappedType && mappedType !== 'array' ? mappedType : 
+        map.values = mappedType && mappedType !== 'array' ? mappedType :
             jsonSchemaAvro._convertProperty(undefined, contents.items.additionalProperties);
         return map;
       }
@@ -309,7 +309,7 @@ jsonSchemaAvro._getItems = (name, contents) => {
       }
     }
   }
-  return jsonSchemaAvro._convertProperty(name, contents.items)
+  return jsonSchemaAvro._convertProperty(name, contents.items);
 }
 
 jsonSchemaAvro._convertArrayProperty = (name, contents) => {
@@ -329,7 +329,7 @@ jsonSchemaAvro._convertEnumProperty = (name, contents, doc) => {
     name: name,
     doc: doc || contents.description || '',
   };
-  
+
   if(contents.hasOwnProperty('$ref')) {
     if(valid) {
       enumProp.type = 'enum';
@@ -359,25 +359,29 @@ jsonSchemaAvro._convertProperty = (name, value) => {
     prop.doc = value.description || ''
   }
 	if(value.hasOwnProperty('default')){
-		prop.default = value.default
+		prop.default = value.default;
 	}
 	if(Array.isArray(value.type)){
+    const indexOfNull = value.type.indexOf('null');
+    if (indexOfNull > 0)
+      value.type.sort((x, y) => { return x == 'null' ? -1 : y == 'null' ? 1 : 0; });
     prop.type = value.type.map(type => {
-        return type === 'array' ? 
-        {
-          type: 'array',
-          items: jsonSchemaAvro._getItems(name, value)
-        }:
-        type === 'object' && value.additionalProperties ?
-        {
-          type: 'map',
-          values: value.additionalProperties.type !== 'array' &&
-                      value.additionalProperties.type !== 'object' ? 
+        if (type === 'array')
+          return {
+            type: 'array',
+            items: jsonSchemaAvro._getItems(name, value)
+          };
+        else if (type === 'object' && value.additionalProperties)
+          return {
+            type: 'map',
+            values: value.additionalProperties.type !== 'array' &&
+                    value.additionalProperties.type !== 'object' ?
                     typeMapping[value.additionalProperties.type] :
                     jsonSchemaAvro._convertProperty(undefined, value.additionalProperties)
-        }
-        : typeMapping[type];
-      })
+          };
+        return typeMapping[type];
+      });
+    if(indexOfNull > -1) prop.default = null;
 	}
 	else{
     prop.type = typeMapping[value.type]
@@ -386,5 +390,5 @@ jsonSchemaAvro._convertProperty = (name, value) => {
       prop.items = itemType && itemType.type && typeMapping[itemType.type] || itemType
     }
   }
-	return prop
+	return prop;
 }
