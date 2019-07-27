@@ -39,9 +39,9 @@
   ],
   "homepage": "https://github.com/dipsmishra/jsonschema-avro#readme",
   "devDependencies": {
-    "mocha": "^5.2.0"
+    "mocha": "^6.2.0"
   },
   "dependencies": {
-    "json-schema-ref-parser": "^6.0.3"
+    "json-schema-ref-parser": "^7.1.0"
   }
 }
